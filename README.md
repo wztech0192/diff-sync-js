@@ -15,10 +15,5 @@ Differential synchronization algorithm keep two or more copies of the same docum
 ## How to use
 
 ```
-import PromisePathLock from 'js-promise-path-lock'
 
-PromisePathLock.lock(axios.get("api/link"))  //pass in your promise object
-  .then(...) //won't execute if the browser path is differ from starting
-  .catch(...) //won't execute if the browser path is differ from starting
-  .finally(...) //won't execute if the browser path is differ from starting
 ```
