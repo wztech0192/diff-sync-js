@@ -1,14 +1,16 @@
-# js-promise-path-lock
+# diff-sync-js
 
-Block the promise chains from executing if the end path is different from the start path. Good for single page application.
+A JavaScript implementation of Neil Fraser Differential Synchronization Algorithm
+
+Diff Sync Writing: https://neil.fraser.name/writing/sync/
 
 ## Use Case
 
-In a SPA, when the user enter a page but then quickly navigate away before the promise resolved, this will result in some useless operation. The path lock will stop executing those operation by comparing the browser path when the promise starting against the path when the promise resolved.
+Differential synchronization algorithm keep two or more copies of the same document synchronized with each other in real-time. The algorithm offers scalability, fault-tolerance, and responsive collaborative editing across an unreliable network.
 
 ## How to install
 
-`npm install js-promise-path-lock`
+`npm install diff-sync-js`
 
 ## How to use
 

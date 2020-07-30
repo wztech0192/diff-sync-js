@@ -1,0 +1,21 @@
+{
+    "name": "diff-sync-text-editor-server",
+    "version": "0.0.1",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "fast-json-patch": "^3.0.0-1",
+        "ws": "^5.2.2"
+    },
+    "engines": {
+        "node": "8.x"
+    },
+    "license": "MIT",
+    "keywords": [
+        "node",
+        "glitch",
+        "express"
+    ]
+}
