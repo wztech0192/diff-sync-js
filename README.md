@@ -8,6 +8,10 @@ Diff Sync Writing: https://neil.fraser.name/writing/sync/
 
 Differential synchronization algorithm keep two or more copies of the same document synchronized with each other in real-time. The algorithm offers scalability, fault-tolerance, and responsive collaborative editing across an unreliable network.
 
+## Demo
+
+http://www.wztechs.com/diff-sync-text-editor/client/
+
 ## How to install
 
 When use npm
