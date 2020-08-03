@@ -1,25 +1,54 @@
+/**
+ * @author Wei Zheng
+ * @github https://github.com/weijie0192/diff-sync-js
+ * @summary A JavaScript implementation of Neil Fraser Differential Synchronization Algorithm
+ */
 module.exports = class DiffSyncAlghorithm {
-    constructor(jsonpatch, thisVersion, senderVersion, ackLimit) {
+    /**
+     * @param {object} options.jsonpatch json-fast-patch library instance (REQUIRED)
+     * @param {string} options.thisVersion version tag of the receiving end
+     * @param {string} options.senderVersion version tag of the sending end
+     * @param {boolean} options.useBackup indicate if use backup copy (DEFAULT true)
+     * @param {boolean} options.debug indicate if print out debug message (DEFAULT false)
+     */
+    constructor({ jsonpatch, thisVersion, senderVersion, useBackup = true, debug = false }) {
+        if (!jsonpatch) {
+            throw "jsonpatch instance is required";
+        }
         this.jsonpatch = jsonpatch;
         this.thisVersion = thisVersion;
         this.senderVersion = senderVersion;
-        this.ackLimit = ackLimit;
+        this.useBackup = useBackup;
+        this.debug = debug;
     }
 
+    log(...anything) {
+        if (this.debug) {
+            console.debug("DIFF SYNC- ", ...anything);
+        }
+    }
+
+    /**
+     * Initialize the container
+     * @param {object} container any
+     * @param {object} mainText any
+     */
     initObject(container, mainText) {
-        const { jsonpatch, thisVersion, senderVersion } = this;
+        const { jsonpatch, thisVersion, senderVersion, useBackup } = this;
         if (mainText !== null || mainText !== undefined) {
             container.shadow = {
                 [thisVersion]: 0,
                 [senderVersion]: 0,
                 value: jsonpatch.deepClone(mainText),
-                edits: [],
+                edits: []
             };
-            container.backup = {
-                [thisVersion]: 0,
-                [senderVersion]: 0,
-                value: jsonpatch.deepClone(mainText),
-            };
+            if (useBackup) {
+                container.backup = {
+                    [thisVersion]: 0,
+                    [senderVersion]: 0,
+                    value: jsonpatch.deepClone(mainText)
+                };
+            }
         } else {
             container.shadow = {};
             container.backup = {};
@@ -27,38 +56,50 @@ module.exports = class DiffSyncAlghorithm {
     }
 
     /**
-     * Payload: { [thisVersion], edits }
+     * On Receive Packet
+     * @param {object} options.payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
+     * @param {object} options.container container object {shadow, backup}
+     * @param {func} options.onUpdateMain (patches, patchOperations, shadow[thisVersion]) => void
+     * @param {func} options.afterUpdate (shadow[senderVersion]) => void
+     * @param {func} options.onUpdateShadow (shadow, patch) => newShadowValue
      */
-    onReceive({ payload, shadow, backup, onUpdateMain, afterUpdate, onPatch }) {
-        const { jsonpatch, thisVersion, senderVersion, ackLimit } = this;
-        console.debug("****************");
-        console.debug("--RECEIVED PAYLOAD --");
-        console.debug(thisVersion + ": " + payload[thisVersion]);
-        console.debug(senderVersion + ": ", payload.edits);
-        console.debug("-- CURRENT SHADOW --");
-        console.debug(shadow);
+    onReceive({ payload, container, onUpdateMain, afterUpdate, onUpdateShadow }) {
+        const { jsonpatch, thisVersion, senderVersion, useBackup } = this;
+        const { shadow, backup } = container;
+        this.log("****************");
+        this.log("--RECEIVED PAYLOAD --");
+        this.log(thisVersion + ": " + payload[thisVersion]);
+        this.log(senderVersion + ": ", payload.edits);
+        this.log("-- CURRENT SHADOW --");
+        this.log(shadow);
 
-        //STEP 4: if the receive version does not match with the shadow version, try to find the match backup or drop the process.
-        if (shadow[thisVersion] !== payload[thisVersion]) {
-            if (backup[thisVersion] === payload[thisVersion]) {
-                console.debug("-- REVERT --");
-                console.debug(backup);
-                //revert to backup
-                shadow.value = json.deepClone(backup.value);
-                shadow[thisVersion] = backup[thisVersion];
-                shadow.edits = [];
-            } else {
-                console.debug("-- ** NOT MATCH, DROP THE PROCESS ** --");
-                return;
+        if (useBackup) {
+            if (shadow[thisVersion] !== payload[thisVersion]) {
+                this.log("-- NOT MATCH --");
+                this.log("backup: ", backup[thisVersion]);
+                //STEP 4: if the receive version does not match with the shadow version, try to find the match backup or drop the process.
+                if (backup[thisVersion] === payload[thisVersion]) {
+                    this.log("-- REVERT --");
+                    this.log(backup);
+                    //revert to backup
+                    shadow.value = jsonpatch.deepClone(backup.value);
+                    shadow[thisVersion] = backup[thisVersion];
+                    shadow.edits = [];
+                } else {
+                    this.log("-- ** NOT MATCH, DROP THE PROCESS ** --");
+                    return;
+                }
             }
         }
 
         //generate patch that ignore old n
 
-        var filteredEdits = payload.edits.filter((edit) => edit[senderVersion] >= shadow[senderVersion]);
+        var filteredEdits = payload.edits.filter(
+            edit => edit[senderVersion] >= shadow[senderVersion]
+        );
 
         if (filteredEdits.length > 0) {
-            var patches = filteredEdits.map((edit) => edit.patch);
+            var patches = filteredEdits.map(edit => edit.patch);
             const patchOperations = [];
             for (let patch of patches) {
                 if (patch.length > 0) {
@@ -66,49 +107,62 @@ module.exports = class DiffSyncAlghorithm {
                         patchOperations.push(operation);
                     }
                     //STEP 5a, 5b: apply each patch to the shadow value
-                    if (onPatch) {
-                        onPatch(shadow, patch);
+                    if (onUpdateShadow) {
+                        shadow.value = onUpdateShadow(shadow, patch);
                     } else {
-                        shadow.value = jsonpatch.applyPatch(shadow.value, patch);
-                        //shadow.value = this.strPatch(shadow.value, patch);
+                        shadow.value = jsonpatch.applyPatch(shadow.value, patch).newDocument;
                     }
                 }
                 //STEP 6: for each patch applied, increment senderVersion
                 shadow[senderVersion]++;
             }
 
-            //STEP 7: copy the shadow value and version over to the backup.
-            backup[thisVersion] = shadow[thisVersion];
-            backup[senderVersion] = shadow[senderVersion];
+            if (useBackup) {
+                //STEP 7: copy the shadow value and version over to the backup.
+                backup[thisVersion] = shadow[thisVersion];
+                backup[senderVersion] = shadow[senderVersion];
+            }
+
             //clear old edits
             this.clearOldEdits(shadow, payload[thisVersion]);
 
             if (patchOperations.length > 0) {
-                backup.value = jsonpatch.deepClone(shadow.value);
+                if (useBackup) {
+                    backup.value = jsonpatch.deepClone(shadow.value);
+                }
                 onUpdateMain(patches, patchOperations, shadow[thisVersion]);
             }
 
-            console.debug("***RESULT****");
-            console.debug("shadow: ", shadow);
+            this.log("***RESULT****");
+            this.log("shadow: ", shadow);
 
             if (afterUpdate) {
-                afterUpdate(payload.edits.length > ackLimit);
+                afterUpdate(shadow[senderVersion]);
             }
-            console.debug("**********");
+            this.log("**********");
         } else {
-            console.debug("**XXX* not match " + senderVersion);
+            this.log("**XXX* not match " + senderVersion);
         }
     }
 
-    onSend(shadow, mainText, whenSend) {
+    /**
+     * On Sending Packet
+     * @param {object} options.container container object {shadow, backup}
+     * @param {object} options.mainText any
+     * @param {func} options.whenSend (shadow[senderVersion], shadow.edits) => void
+     * @param {func} options.whenUnchange (shadow[senderVersion]) => void
+     */
+    onSend({ container, mainText, whenSend, whenUnchange }) {
+        const shadow = container.shadow;
         const { jsonpatch, thisVersion, senderVersion } = this;
         //STEP 1a, 1b: generate diff
         var patch = jsonpatch.compare(shadow.value, mainText);
+
         if (patch.length > 0) {
             //STEP 2: push diff into edits stack
             shadow.edits.push({
                 [thisVersion]: shadow[thisVersion],
-                patch,
+                patch
             });
 
             //STEP 3: copy main text over to the shadow and increment thisVersion
@@ -116,108 +170,53 @@ module.exports = class DiffSyncAlghorithm {
             shadow[thisVersion]++;
 
             whenSend(shadow[senderVersion], shadow.edits);
+        } else if (whenUnchange) {
+            whenUnchange(shadow[senderVersion]);
         }
     }
 
-    clearOldEdits(shadow, version) {
-        shadow.edits = shadow.edits.filter((edit) => edit[this.thisVersion] > version);
+    /**
+     * Acknowledge the other side when no change were made
+     * @param {object} container container object {shadow, backup}
+     * @param {object} payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
+     */
+    onAck(container, payload) {
+        const { backup, shadow } = container;
+        const { thisVersion, jsonpatch } = this;
+        this.log("--- ON ACK ---");
+        this.log("Receive version: ", payload[thisVersion]);
+        this.log("Shadow version: ", shadow[thisVersion]);
+        this.log("Backup version: ", backup[thisVersion]);
+        this.clearOldEdits(shadow, payload[thisVersion]);
+
+        if (
+            shadow[thisVersion] === payload[thisVersion] &&
+            backup[thisVersion] !== payload[thisVersion]
+        ) {
+            this.log("backup not match, clone backup!");
+            backup.value = jsonpatch.deepClone(shadow.value);
+            backup[thisVersion] = shadow[thisVersion];
+        }
     }
 
+    /**
+     * clear old edits
+     * @param {object} shadow
+     * @param {string} version
+     */
+    clearOldEdits(shadow, version) {
+        shadow.edits = shadow.edits.filter(edit => edit[this.thisVersion] > version);
+    }
+
+    /**
+     * apply patch to string
+     * @param {string} val
+     * @param {patch} patch
+     * @return string
+     */
     strPatch(val, patch) {
-        return jsonpatch.applyPatch(val.split(""), patch).newDocument.join("");
+        var newDoc = this.jsonpatch.applyPatch(val.split(""), patch).newDocument;
+        if (typeof newDoc === "string") return newDoc;
+        return newDoc.join("");
     }
 };
-
-module.exports = (jsonpatch, thisVersion, senderVersion) => ({
-    onReceive({ payload, shadow, backup, onUpdateMain, afterUpdate }) {
-        console.debug("****************");
-        console.debug("--RECEIVED PAYLOAD --");
-        console.debug(thisVersion + ": " + payload[thisVersion]);
-        console.debug(senderVersion + ": ", payload.edits);
-        console.debug("-------------");
-
-        console.debug("-- CURRENT SHADOW --");
-        console.debug(shadow);
-        console.debug("----");
-
-        //4
-        if (shadow[thisVersion] !== payload[thisVersion]) {
-            if (backup[thisVersion] === payload[thisVersion]) {
-                console.debug("-- REVERT --");
-                console.debug(backup);
-                //revert to backup
-                shadow.value = backup.value;
-                shadow[thisVersion] = backup[thisVersion];
-                shadow.edits = [];
-                console.debug("----");
-            } else {
-                console.debug("** not match " + thisVersion);
-                return;
-            }
-        }
-
-        //generate patch that ignore old n
-
-        var filteredEdits = payload.edits.filter((edit) => edit[senderVersion] >= shadow[senderVersion]);
-
-        //5a, 5b
-        if (filteredEdits.length > 0) {
-            var patches = filteredEdits.map((edit) => edit.patch);
-
-            for (let patch of patches) {
-                if (patch.length > 0) {
-                    shadow.value = this.strPatch(shadow.value, patch);
-                }
-                //6
-                shadow[senderVersion]++;
-            }
-
-            //backup
-            //7
-            backup.value = shadow.value;
-            backup[thisVersion] = shadow[thisVersion];
-            backup[senderVersion] = shadow[senderVersion];
-            //clear old edits
-            shadow.edits = shadow.edits.filter((edit) => edit[thisVersion] > payload[thisVersion]);
-
-            onUpdateMain(patches);
-
-            console.debug("***RESULT****");
-            console.debug("shadow: ", shadow);
-
-            if (afterUpdate) {
-                afterUpdate();
-            }
-            console.debug("**********");
-        } else {
-            console.debug("**XXX* not match " + senderVersion);
-        }
-    },
-
-    onSend(shadow, mainText, sendAnyway, whenSend) {
-        //1a, 1b
-        var patch = jsonpatch.compare(shadow.value, mainText);
-        if (sendAnyway || patch.length > 0) {
-            //2
-            shadow.edits.push({
-                [thisVersion]: shadow[thisVersion],
-                patch,
-            });
-
-            //3
-            shadow.value = mainText;
-            shadow[thisVersion]++;
-
-            var payload = {
-                [senderVersion]: shadow[senderVersion],
-                edits: shadow.edits,
-            };
-
-            whenSend(payload);
-        }
-    },
-
-    strPatch(val, patch) {
-        return this.jsonpatch.applyPatch(val.split(""), patch).newDocument.join("");
-    },
-});

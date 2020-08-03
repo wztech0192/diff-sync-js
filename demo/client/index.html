@@ -1,68 +1,55 @@
-<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Asymmetry Differential Synchronization Editor</title>
-        <script src="lib/json-fast-patch.js"></script>
-        <link type="image/x-icon" href="./favicon.png" rel="icon" />
-        <script src="lib/cursor-saver.js"></script>
-        <script>
-            //fake module import
-            var module = {
-                exports: undefined,
-            };
-        </script>
-        <script src="../../src/index.js"></script>
-    </head>
 
-    <body>
-        <fieldset disabled id="field">
-            <div>
-                <span>Your Name:</span>
-                <input id="name" placeholder="Anonymous" />
-                <div style="float: right;"><label>Status: </label><span id="status">OFFLINE</span></div>
-            </div>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asymmetry Differential Synchronization Editor</title>
+    <script src="libraries/json-fast-patch.js"></script>
+    <link type="image/x-icon" href="./favicon.png" rel="icon" />
+    <script src="libraries/cursor-saver.js"></script>
+    <script src="index.js"></script>
+    <script src="../../src/index.js"></script>
+</head>
 
-            <div>
-                <label>Existing Editors:</label>
-                <span id="editors"></span>
-                <div style="float: right;">Auto: <input type="checkbox" id="auto" /></div>
-            </div>
-            <hr />
+<body>
+    <fieldset disabled id="field">
+        <div>
+            <span>Your Name:</span>
+            <input id="name" placeholder="Anonymous" />
+            <div style="float: right;"><label>Status: </label><span id="status">OFFLINE</span></div>
+        </div>
 
-            <div>
-                <span>Server Receive Chance</span>
-                <span style="float: right;">Client Receive Chance</span>
-            </div>
-            <div>
-                <input type="range" id="serverChance" name="server" value="1" min="0" max="1" step="0.1" />
-                <input
-                    style="float: right;"
-                    type="range"
-                    name="client"
-                    id="clientChance"
-                    value="1"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                />
-            </div>
+        <div>
+            <label>Existing Editors:</label>
+            <span id="editors"></span>
+            <div style="float: right;">Auto: <input type="checkbox" id="auto" /></div>
+        </div>
+        <hr />
 
-            <hr />
+        <div>
+            <span>Server Receive Chance</span>
+            <span style="float: right;">Client Receive Chance</span>
+        </div>
+        <div>
+            <input type="range" id="serverChance" name="server" value="1" min="0" max="1" step="0.1" />
+            <input style="float: right;" type="range" name="client" id="clientChance" value="1" min="0" max="1"
+                step="0.1" />
+        </div>
 
-            <div>
-                <input type="range" id="timeoutDelay" value="250" min="0" max="5000" step="50" />
-                <span id="timeoutIndicator" style="float: right;">Initiated</span>
-            </div>
-            <div>
-                <span id="timeoutDelayLabel">Patch Delay: 250ms</span>
-                <span id="mnLabel" style="float: right;">N:0 M:0</span>
-            </div>
-            <br />
+        <hr />
 
-            <textarea id="textfield" style="width: calc(100% - 20px); height: 70vh; padding: 10px;"> </textarea>
-        </fieldset>
-        <script src="index.js"></script>
-    </body>
+        <div>
+            <input type="range" id="timeoutDelay" value="250" min="0" max="5000" step="50" />
+            <span id="timeoutIndicator" style="float: right;">Initiated</span>
+        </div>
+        <div>
+            <span id="timeoutDelayLabel">Patch Delay: 250ms</span>
+            <span id="mnLabel" style="float: right;">N:0 M:0</span>
+        </div>
+        <br />
+
+        <textarea id="textfield" style="width: calc(100% - 20px); height: 70vh; padding: 10px;"> </textarea>
+    </fieldset>
+</body>
+
 </html>
