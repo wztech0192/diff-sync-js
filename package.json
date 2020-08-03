@@ -1,34 +1,34 @@
 {
-  "name": "diff-sync-js",
-  "version": "1.0.2",
-  "description": "A JavaScript implementation of Neil Fraser Differential Synchronization Algorithm",
-  "main": "lib/index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/weijie0192/diff-sync-js.git"
-  },
-  "author": "Wei Zheng",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/weijie0192/diff-sync-js/issues"
-  },
-  "scripts": {
-    "prepublish": "babel src --out-dir lib",
-    "build": "babel src --out-dir lib"
-  },
-  "homepage": "https://github.com/weijie0192/diff-sync-js#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "babel-plugin-syntax-class-properties": "^6.13.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-es2015": "^6.24.1"
-  },
-  "keywords": [
-    "differential synchronization",
-    "concurrent editing",
-    "multi user editor",
-    "synchronization"
-  ]
+    "name": "diff-sync-js",
+    "version": "1.0.3",
+    "description": "A JavaScript implementation of Neil Fraser Differential Synchronization Algorithm",
+    "main": "lib/index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/weijie0192/diff-sync-js.git"
+    },
+    "author": "Wei Zheng",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/weijie0192/diff-sync-js/issues"
+    },
+    "scripts": {
+        "prepublish": "babel src --out-dir lib",
+        "build": "babel src --out-dir lib"
+    },
+    "homepage": "https://github.com/weijie0192/diff-sync-js#readme",
+    "devDependencies": {
+        "@babel/cli": "^7.8.4",
+        "@babel/core": "^7.9.6",
+        "@babel/preset-env": "^7.9.6",
+        "babel-plugin-syntax-class-properties": "^6.13.0",
+        "babel-plugin-transform-class-properties": "^6.24.1",
+        "babel-preset-es2015": "^6.24.1"
+    },
+    "keywords": [
+        "differential synchronization",
+        "concurrent editing",
+        "multi user editor",
+        "synchronization"
+    ]
 }
