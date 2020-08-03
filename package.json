@@ -1,6 +1,6 @@
 {
   "name": "diff-sync-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A JavaScript implementation of Neil Fraser Differential Synchronization Algorithm",
   "main": "lib/index.js",
   "repository": {
