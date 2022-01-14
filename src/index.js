@@ -94,10 +94,10 @@ module.exports = class DiffSyncAlghorithm {
 
         //generate patch that ignore old n
 
-        var filteredEdits = payload.edits.filter(edit => edit[senderVersion] >= shadow[senderVersion]);
+        const filteredEdits = payload.edits.filter(edit => edit[senderVersion] >= shadow[senderVersion]);
 
         if (filteredEdits.length > 0) {
-            var patches = filteredEdits.map(edit => edit.patch);
+            const patches = filteredEdits.map(edit => edit.patch);
             const patchOperations = [];
             for (let patch of patches) {
                 if (patch.length > 0) {
@@ -154,7 +154,7 @@ module.exports = class DiffSyncAlghorithm {
         const shadow = container.shadow;
         const { jsonpatch, thisVersion, senderVersion } = this;
         //STEP 1a, 1b: generate diff
-        var patch = jsonpatch.compare(shadow.value, mainText);
+        const patch = jsonpatch.compare(shadow.value, mainText);
 
         if (patch.length > 0) {
             //STEP 2: push diff into edits stack
@@ -204,7 +204,7 @@ module.exports = class DiffSyncAlghorithm {
      * @return string
      */
     strPatch(val, patch) {
-        var newDoc = this.jsonpatch.applyPatch(val.split(""), patch).newDocument;
+        const newDoc = this.jsonpatch.applyPatch(val.split(""), patch).newDocument;
         if (typeof newDoc === "string") return newDoc;
         return newDoc.join("");
     }
