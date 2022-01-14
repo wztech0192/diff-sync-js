@@ -10,7 +10,7 @@ Differential synchronization algorithm keep two or more copies of the same docum
 
 ## Demo
 
-http://wztechs.com/diff-sync-text-editor/client/
+http://wztechs.com/diff-sync-text-editor/demo/client/
 
 ## How to install
 
