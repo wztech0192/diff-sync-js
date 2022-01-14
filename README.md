@@ -20,6 +20,10 @@ When use npm
 When use html
 `<script src="./dist/diffSync.js"></script>`
 
+## Dependencies
+
+`json-fast-patch`
+
 ## How to use
 
 1. Initial diffSync instance

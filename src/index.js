@@ -5,11 +5,11 @@
  */
 module.exports = class DiffSyncAlghorithm {
     /**
-     * @param {object} options.jsonpatch json-fast-patch library instance (REQUIRED)
-     * @param {string} options.thisVersion version tag of the receiving end
-     * @param {string} options.senderVersion version tag of the sending end
-     * @param {boolean} options.useBackup indicate if use backup copy (DEFAULT true)
-     * @param {boolean} options.debug indicate if print out debug message (DEFAULT false)
+     * @param {Object} options.jsonpatch json-fast-patch library instance (REQUIRED)
+     * @param {String} options.thisVersion version tag of the receiving end
+     * @param {String} options.senderVersion version tag of the sending end
+     * @param {Boolean} options.useBackup indicate if use backup copy (DEFAULT true)
+     * @param {Boolean} options.debug indicate if print out debug message (DEFAULT false)
      */
     constructor({ jsonpatch, thisVersion, senderVersion, useBackup = true, debug = false }) {
         if (!jsonpatch) {
@@ -30,8 +30,8 @@ module.exports = class DiffSyncAlghorithm {
 
     /**
      * Initialize the container
-     * @param {object} container any
-     * @param {object} mainText any
+     * @param {Object} container any
+     * @param {Object} mainText any
      */
     initObject(container, mainText) {
         const { jsonpatch, thisVersion, senderVersion, useBackup } = this;
@@ -57,11 +57,11 @@ module.exports = class DiffSyncAlghorithm {
 
     /**
      * On Receive Packet
-     * @param {object} options.payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
-     * @param {object} options.container container object {shadow, backup}
-     * @param {func} options.onUpdateMain (patches, patchOperations, shadow[thisVersion]) => void
-     * @param {func} options.afterUpdate (shadow[senderVersion]) => void
-     * @param {func} options.onUpdateShadow (shadow, patch) => newShadowValue
+     * @param {Object} options.payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
+     * @param {Object} options.container container object {shadow, backup}
+     * @param {Function} options.onUpdateMain (patches, patchOperations, shadow[thisVersion]) => void
+     * @param {Function} options.afterUpdate (shadow[senderVersion]) => void
+     * @param {Function} options.onUpdateShadow (shadow, patch) => newShadowValue
      */
     onReceive({ payload, container, onUpdateMain, afterUpdate, onUpdateShadow }) {
         const { jsonpatch, thisVersion, senderVersion, useBackup } = this;
@@ -94,9 +94,7 @@ module.exports = class DiffSyncAlghorithm {
 
         //generate patch that ignore old n
 
-        var filteredEdits = payload.edits.filter(
-            edit => edit[senderVersion] >= shadow[senderVersion]
-        );
+        var filteredEdits = payload.edits.filter(edit => edit[senderVersion] >= shadow[senderVersion]);
 
         if (filteredEdits.length > 0) {
             var patches = filteredEdits.map(edit => edit.patch);
@@ -147,10 +145,10 @@ module.exports = class DiffSyncAlghorithm {
 
     /**
      * On Sending Packet
-     * @param {object} options.container container object {shadow, backup}
-     * @param {object} options.mainText any
-     * @param {func} options.whenSend (shadow[senderVersion], shadow.edits) => void
-     * @param {func} options.whenUnchange (shadow[senderVersion]) => void
+     * @param {Object} options.container container object {shadow, backup}
+     * @param {Object} options.mainText any
+     * @param {Function} options.whenSend (shadow[senderVersion], shadow.edits) => void
+     * @param {Function} options.whenUnchange (shadow[senderVersion]) => void
      */
     onSend({ container, mainText, whenSend, whenUnchange }) {
         const shadow = container.shadow;
@@ -177,8 +175,8 @@ module.exports = class DiffSyncAlghorithm {
 
     /**
      * Acknowledge the other side when no change were made
-     * @param {object} container container object {shadow, backup}
-     * @param {object} payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
+     * @param {Object} container container object {shadow, backup}
+     * @param {Object} payload payload object that contains {thisVersion, edits}. Edits should be a list of {senderVersion, patch}
      */
     onAck(container, payload) {
         const { backup, shadow } = container;
@@ -188,21 +186,12 @@ module.exports = class DiffSyncAlghorithm {
         this.log("Shadow version: ", shadow[thisVersion]);
         this.log("Backup version: ", backup[thisVersion]);
         this.clearOldEdits(shadow, payload[thisVersion]);
-
-        if (
-            shadow[thisVersion] === payload[thisVersion] &&
-            backup[thisVersion] !== payload[thisVersion]
-        ) {
-            this.log("backup not match, clone backup!");
-            backup.value = jsonpatch.deepClone(shadow.value);
-            backup[thisVersion] = shadow[thisVersion];
-        }
     }
 
     /**
      * clear old edits
-     * @param {object} shadow
-     * @param {string} version
+     * @param {Object} shadow
+     * @param {String} version
      */
     clearOldEdits(shadow, version) {
         shadow.edits = shadow.edits.filter(edit => edit[this.thisVersion] > version);
@@ -210,8 +199,8 @@ module.exports = class DiffSyncAlghorithm {
 
     /**
      * apply patch to string
-     * @param {string} val
-     * @param {patch} patch
+     * @param {String} val
+     * @param {Object} patch json patch
      * @return string
      */
     strPatch(val, patch) {

@@ -15,47 +15,44 @@
             <div>
                 <span>Your Name:</span>
                 <input id="name" placeholder="Anonymous" />
-                <div style="float: right;"><label>Status: </label><span id="status">OFFLINE</span></div>
+                <div style="float: right"><label>Status: </label><span id="status">OFFLINE</span></div>
             </div>
 
             <div>
                 <label>Existing Editors:</label>
                 <span id="editors"></span>
-                <div style="float: right;">Auto: <input type="checkbox" id="auto" /></div>
+                <div style="float: right">Auto: <input type="checkbox" id="auto" /></div>
             </div>
             <hr />
 
             <div>
                 <span>Server Receive Chance</span>
-                <span style="float: right;">Client Receive Chance</span>
+                <span style="float: right">Client Receive Chance</span>
             </div>
             <div>
                 <input type="range" id="serverChance" name="server" value="1" min="0" max="1" step="0.1" />
-                <input
-                    style="float: right;"
-                    type="range"
-                    name="client"
-                    id="clientChance"
-                    value="1"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                />
+                <input style="float: right" type="range" name="client" id="clientChance" value="1" min="0" max="1" step="0.1" />
             </div>
 
             <hr />
 
             <div>
                 <input type="range" id="timeoutDelay" value="250" min="0" max="5000" step="50" />
-                <span id="timeoutIndicator" style="float: right;">Initiated</span>
+                <span id="timeoutIndicator" style="float: right">Initiated</span>
             </div>
             <div>
                 <span id="timeoutDelayLabel">Patch Delay: 250ms</span>
-                <span id="mnLabel" style="float: right;">N:0 M:0</span>
+                <span id="mnLabel" style="float: right">N:0 M:0</span>
             </div>
             <br />
 
-            <textarea id="textfield" style="width: calc(100% - 20px); height: 70vh; padding: 10px;"> </textarea>
+            <textarea id="textfield" style="width: calc(100% - 20px); height: 57vh; padding: 10px"> </textarea>
         </fieldset>
+        <p>Editor created by Wei J. Zheng, <a href="https://github.com/wztech0192/diff-sync-js">Github Repository</a></p>
+        <p>
+            Differential synchronization algorithm, created by Neil Fraser, keep two or more copies of the same document synchronized with
+            each other in real-time. The algorithm offers scalability, fault-tolerance, and responsive collaborative editing across an
+            unreliable network. For more information about the algorithm, checkout <a href="https://neil.fraser.name/writing/sync/">here</a>
+        </p>
     </body>
 </html>

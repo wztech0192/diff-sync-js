@@ -10,6 +10,13 @@ window.onload = function () {
     var $timeoutIndicator = document.getElementById("timeoutIndicator");
     var $timeoutDelayLabel = document.getElementById("timeoutDelayLabel");
     var $timeoutDelay = document.getElementById("timeoutDelay");
+
+    const presetDelay = parseInt(localStorage.getItem("timeoutDelay"));
+    if (!isNaN(presetDelay)) {
+        $timeoutDelay.value = presetDelay;
+        $timeoutDelayLabel.innerHTML = "Patch Delay: " + presetDelay + "ms";
+    }
+
     var $mnLabel = document.getElementById("mnLabel");
     var $serverChance = document.getElementById("serverChance");
     var $clientChance = document.getElementById("clientChance");
@@ -33,9 +40,9 @@ window.onload = function () {
             i = 0;
         } else {
             interval = setInterval(() => {
-                $textfield.value = $textfield.value + i++ + ", ";
+                $textfield.value = $textfield.value + i++ + ",";
                 sendPatch($textfield.value);
-            }, 2000);
+            }, 300);
         }
     };
 
@@ -52,6 +59,7 @@ window.onload = function () {
     $clientChance.onchange = onChanceChange;
 
     $timeoutDelay.oninput = function () {
+        localStorage.setItem("timeoutDelay", this.value);
         $timeoutDelayLabel.innerHTML = "Patch Delay: " + this.value + "ms";
     };
 
@@ -72,7 +80,6 @@ window.onload = function () {
     // Create WebSocket connection.
     //var socket = new WebSocket("ws://142.11.215.231:42998");
     var socket = new WebSocket("ws://localhost:42998");
-
     // Connection opened
     socket.addEventListener("open", function (event) {
         $status.innerHTML = "ONLINE";
