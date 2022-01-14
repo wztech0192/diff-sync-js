@@ -166,6 +166,13 @@ window.onload = function () {
 
     function setText(val) {
         var sel = getInputSelection($textfield);
+        var textVal = $textfield.value;
+        var isFrontChange = val.substring(0, sel.start) !== textVal.substring(0, sel.start);
+        if (isFrontChange) {
+            var charDiff = textVal.length - val.length;
+            sel.start -= charDiff;
+            sel.end -= charDiff;
+        }
         $textfield.value = val;
         setInputSelection($textfield, sel.start, sel.end);
     }
