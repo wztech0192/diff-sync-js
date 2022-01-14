@@ -10,12 +10,13 @@ Differential synchronization algorithm keep two or more copies of the same docum
 
 ## Demo
 
-http://www.wztechs.com/diff-sync-text-editor/client/
+http://wztechs.com/diff-sync-text-editor/demo/client/
 
 ## How to install
 
-When use npm
+When use npm https://www.npmjs.com/package/diff-sync-js
 `npm install diff-sync-js`
+
 
 When use html
 `<script src="./dist/diffSync.js"></script>`
