@@ -35,7 +35,7 @@ module.exports = class DiffSyncAlghorithm {
      */
     initObject(container, mainText) {
         const { jsonpatch, thisVersion, senderVersion, useBackup } = this;
-        if (mainText !== null || mainText !== undefined) {
+        if (mainText !== null && mainText !== undefined) {
             container.shadow = {
                 [thisVersion]: 0,
                 [senderVersion]: 0,
