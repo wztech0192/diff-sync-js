@@ -31,56 +31,19 @@ window.onload = function () {
         debug: true
     });
 
-    var interval = null;
-    $auto.onchange = function () {
-        var i = 0;
-        if (interval) {
-            clearInterval(interval);
-            interval = null;
-            i = 0;
-        } else {
-            interval = setInterval(() => {
-                $textfield.value = $textfield.value + i++ + ",";
-                sendPatch($textfield.value);
-            }, 300);
-        }
-    };
-
-    function onChanceChange() {
-        send({
-            type: "SET_CHANCE",
-            payload: {
-                name: this.getAttribute("name"),
-                value: this.value
-            }
-        });
-    }
-    $serverChance.onchange = onChanceChange;
-    $clientChance.onchange = onChanceChange;
-
     $timeoutDelay.oninput = function () {
         localStorage.setItem("timeoutDelay", this.value);
         $timeoutDelayLabel.innerHTML = "Patch Delay: " + this.value + "ms";
     };
 
     $name.value = localStorage.getItem("name");
-    $name.onchange = function () {
-        var name = this.value;
-        localStorage.setItem("name", name);
-        send({
-            type: "EDITORS",
-            payload: {
-                name: name
-            }
-        });
-    };
 
     function connectSocket() {
         var container = {};
 
         // Create WebSocket connection.
-        //var socket = new WebSocket("ws://142.11.215.231:42998");
-        var socket = new WebSocket("ws://localhost:42998");
+        const url = window.location.hostname.includes("wztechs") ? "ws://142.11.215.231:42998" : "ws://localhost:42998";
+        var socket = new WebSocket(url);
         // Connection opened
         socket.addEventListener("open", function (event) {
             $status.innerHTML = "ONLINE";
@@ -146,12 +109,27 @@ window.onload = function () {
                             }
                             updateMNLabel();
                         },
-                        afterUpdate(m) {
-                            console.log("SEND ACK", m);
-                            send({
-                                type: "ACK",
-                                payload: {
-                                    m
+                        afterUpdate() {
+                            diffSync.onSend({
+                                container: container,
+                                mainText: $textfield.value,
+                                whenSend(m, edits) {
+                                    console.log("SEND PATCH AFTER UPDATE", m, payload);
+                                    send({
+                                        type: "PATCH",
+                                        payload: {
+                                            m,
+                                            edits
+                                        }
+                                    });
+                                },
+                                whenUnchange(m) {
+                                    send({
+                                        type: "ACK",
+                                        payload: {
+                                            m
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -160,6 +138,44 @@ window.onload = function () {
                     break;
             }
         });
+
+        $name.onchange = function () {
+            var name = this.value;
+            localStorage.setItem("name", name);
+            send({
+                type: "EDITORS",
+                payload: {
+                    name: name
+                }
+            });
+        };
+
+        var interval = null;
+        $auto.onchange = function () {
+            var i = 0;
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+                i = 0;
+            } else {
+                interval = setInterval(() => {
+                    $textfield.value = $textfield.value + i++ + ",";
+                    sendPatch($textfield.value);
+                }, 300);
+            }
+        };
+
+        function onChanceChange() {
+            send({
+                type: "SET_CHANCE",
+                payload: {
+                    name: this.getAttribute("name"),
+                    value: this.value
+                }
+            });
+        }
+        $serverChance.onchange = onChanceChange;
+        $clientChance.onchange = onChanceChange;
 
         function updateMNLabel() {
             const shadow = container.shadow;

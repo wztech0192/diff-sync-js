@@ -14,9 +14,8 @@ http://wztechs.com/diff-sync-text-editor/demo/client/
 
 ## How to install
 
-When use npm 
+When use npm
 `npm install diff-sync-js`
-
 
 When use html
 `<script src="./dist/diffSync.js"></script>`
@@ -24,6 +23,10 @@ When use html
 ## Dependencies
 
 `json-fast-patch`
+
+## To Test
+
+`npm run test`
 
 ## How to use
 
