@@ -1,7 +1,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <title>Symmetry Differential Synchronization Editor</title>
         <script src="libraries/json-fast-patch.js"></script>
         <link type="image/x-icon" href="./favicon.png" rel="icon" />
@@ -46,7 +46,14 @@
             </div>
             <br />
 
-            <textarea id="textfield" autocomplete="off" style="width: calc(100% - 20px); height: 57vh; padding: 10px"> </textarea>
+            <textarea
+                id="textfield"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                style="width: calc(100% - 20px); height: 57vh; padding: 10px"
+            >
+            </textarea>
         </fieldset>
         <p>Editor created by Wei J. Zheng, <a href="https://github.com/wztech0192/diff-sync-js">Github Repository</a></p>
         <p>
